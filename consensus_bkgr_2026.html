@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consensus RNPG 2026 – Révisions BKGR | Bourse de Casablanca</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg2: #f5f5f3;
+    --bg3: #eeede8;
+    --text: #1a1a18;
+    --text2: #5f5e5a;
+    --text3: #888780;
+    --border: rgba(0,0,0,0.10);
+    --border2: rgba(0,0,0,0.18);
+    --radius: 8px;
+    --radius-lg: 12px;
+    --green: #3B6D11;
+    --green-bg: #EAF3DE;
+    --red: #A32D2D;
+    --red-bg: #FCEBEB;
+    --blue: #185FA5;
+    --blue-bg: #E6F1FB;
+    --blue-mid: #378ADD;
+    --gray: #5F5E5A;
+    --gray-bg: #F1EFE8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a;
+      --bg2: #252523;
+      --bg3: #2e2e2c;
+      --text: #f0efe8;
+      --text2: #b4b2a9;
+      --text3: #888780;
+      --border: rgba(255,255,255,0.10);
+      --border2: rgba(255,255,255,0.18);
+      --green: #97C459;
+      --green-bg: #173404;
+      --red: #F09595;
+      --red-bg: #501313;
+      --blue: #B5D4F4;
+      --blue-bg: #042C53;
+      --blue-mid: #378ADD;
+      --gray: #D3D1C7;
+      --gray-bg: #2C2C2A;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg3);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  .page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+  }
+  .header {
+    margin-bottom: 28px;
+  }
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .header-sub {
+    font-size: 13px;
+    color: var(--text2);
+  }
+  .pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: var(--blue-bg);
+    color: var(--blue);
+    font-weight: 500;
+    white-space: nowrap;
+    align-self: flex-start;
+    margin-top: 4px;
+  }
+  .grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 640px) {
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  }
+  .metric {
+    background: var(--bg);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    border: 0.5px solid var(--border);
+  }
+  .metric-label {
+    font-size: 11px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+  .metric-value {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .metric-sub {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 3px;
+  }
+  .card {
+    background: var(--bg);
+    border-radius: var(--radius-lg);
+    border: 0.5px solid var(--border);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 16px;
+  }
+  .tab-row {
+    display: flex;
+    gap: 0;
+    border-bottom: 0.5px solid var(--border);
+    margin-bottom: 20px;
+    overflow-x: auto;
+  }
+  .tab {
+    font-size: 13px;
+    padding: 9px 16px;
+    cursor: pointer;
+    color: var(--text2);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -0.5px;
+    white-space: nowrap;
+    transition: color 0.15s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    color: var(--text);
+    border-bottom-color: var(--blue-mid);
+    font-weight: 500;
+  }
+  .section { display: none; }
+  .section.active { display: block; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    font-size: 11px;
+    color: var(--text3);
+    font-weight: 500;
+    text-align: left;
+    padding: 6px 10px;
+    border-bottom: 0.5px solid var(--border);
+    white-space: nowrap;
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+  }
+  td {
+    padding: 8px 10px;
+    border-bottom: 0.5px solid var(--border);
+    color: var(--text);
+    white-space: nowrap;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg2); }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+  .badge-up { background: var(--green-bg); color: var(--green); }
+  .badge-down { background: var(--red-bg); color: var(--red); }
+  .badge-neutral { background: var(--gray-bg); color: var(--gray); }
+  .badge-strong { background: var(--blue-bg); color: var(--blue); }
+  .up { color: var(--green); font-weight: 600; }
+  .down { color: var(--red); font-weight: 600; }
+  .flat { color: var(--text3); }
+  .chart-wrap { position: relative; width: 100%; }
+  .section-note {
+    font-size: 12px;
+    color: var(--text2);
+    margin-bottom: 14px;
+    line-height: 1.6;
+  }
+  .insight-box {
+    background: var(--blue-bg);
+    border-radius: var(--radius);
+    border-left: 3px solid var(--blue-mid);
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: var(--blue);
+    line-height: 1.6;
+  }
+  .insight-box strong { font-weight: 600; }
+  .divider { height: 0.5px; background: var(--border); margin: 20px 0; }
+  footer {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text3);
+    padding-top: 40px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="header-top">
+      <h1>Consensus RNPG 2026 — Bourse de Casablanca</h1>
+      <span class="pill">Mise à jour mai 2026</span>
+    </div>
+    <div class="header-sub">Révisions BKGR (décembre 2025 → mai 2026) · Estimations CFG Research & Wafa Gestion</div>
+  </div>
+
+  <div class="grid-4">
+    <div class="metric">
+      <div class="metric-label">Valeurs révisées</div>
+      <div class="metric-value">41</div>
+      <div class="metric-sub">avec 2 estimations BKGR</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Révisions à la hausse</div>
+      <div class="metric-value" style="color:var(--green)">22</div>
+      <div class="metric-sub">dont 3 révisions majeures</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Révisions à la baisse</div>
+      <div class="metric-value" style="color:var(--red)">12</div>
+      <div class="metric-sub">dont 4 déclassements forts</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Inchangées</div>
+      <div class="metric-value" style="color:var(--text3)">7</div>
+      <div class="metric-sub">estimations stables</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="tab-row">
+      <div class="tab active" onclick="showTab('revisions')">Vue d'ensemble</div>
+      <div class="tab" onclick="showTab('hausses')">Hausses BKGR</div>
+      <div class="tab" onclick="showTab('baisses')">Baisses BKGR</div>
+      <div class="tab" onclick="showTab('secteur')">Par secteur</div>
+      <div class="tab" onclick="showTab('marche')">Consensus marché</div>
+    </div>
+
+    <!-- TAB 1 : Vue d'ensemble -->
+    <div id="tab-revisions" class="section active">
+      <div class="insight-box">
+        <strong>Signal principal :</strong> BKGR révise fortement à la hausse les minières (MANAGEM +168%, SMI +114%, CMT +107%) après intégration du rebond des prix des métaux. À l'inverse, l'agroalimentaire est déclassé — COSUMAR et LESIEUR subissent les coupes les plus sévères.
+      </div>
+      <div class="card-title">Révisions BKGR en % — décembre 2025 vs mai 2026 (toutes valeurs)</div>
+      <div class="chart-wrap" style="height:420px;">
+        <canvas id="waterfallChart" role="img" aria-label="Révisions BKGR en pourcentage pour toutes les valeurs couvertes">Révisions BKGR décembre 2025 vs mai 2026</canvas>
+      </div>
+    </div>
+
+    <!-- TAB 2 : Hausses -->
+    <div id="tab-hausses" class="section">
+      <div class="section-note">Valeurs dont l'estimation BKGR a été révisée à la hausse entre décembre 2025 et mai 2026, triées par amplitude de révision.</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Valeur</th><th>Secteur</th><th>RNPG 2025e</th>
+            <th>BKGR déc. 2025</th><th>BKGR mai 2026</th>
+            <th>Révision</th><th>Signal</th>
+          </tr></thead>
+          <tbody id="haussesBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 3 : Baisses -->
+    <div id="tab-baisses" class="section">
+      <div class="section-note">Valeurs dont l'estimation BKGR a été révisée à la baisse entre décembre 2025 et mai 2026, triées par amplitude de déclassement.</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Valeur</th><th>Secteur</th><th>RNPG 2025e</th>
+            <th>BKGR déc. 2025</th><th>BKGR mai 2026</th>
+            <th>Révision</th><th>Signal</th>
+          </tr></thead>
+          <tbody id="baissesBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 4 : Secteur -->
+    <div id="tab-secteur" class="section">
+      <div class="section-note">Révision moyenne BKGR par secteur. Les mines sont le grand bénéficiaire de mai ; l'agroalimentaire est le principal déclassé.</div>
+      <div class="chart-wrap" style="height:380px;">
+        <canvas id="sectorChart" role="img" aria-label="Révision moyenne BKGR par secteur entre décembre 2025 et mai 2026">Révisions sectorielles BKGR</canvas>
+      </div>
+    </div>
+
+    <!-- TAB 5 : Marché -->
+    <div id="tab-marche" class="section">
+      <div class="section-note">Consensus marché (mai 2026) vs RNPG 2025 — valeurs avec upside consensus supérieur à 10%.</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Valeur</th><th>Secteur</th><th>RNPG 2025</th>
+            <th>Moy. consensus</th><th>BKGR mai</th><th>CFG</th><th>WG</th>
+            <th>Upside vs 2025</th>
+          </tr></thead>
+          <tbody id="marcheBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <footer>Données : BKGR (déc. 2025 & mai 2026), CFG Research, Wafa Gestion — Bourse de Casablanca</footer>
+</div>
+
+<script>
+const data = [
+  {t:'LESIEUR',s:'Agro',r25:8,dec:197,mai:40,moy:40,cfg:null,wg:null},
+  {t:'MUTANDIS',s:'Agro',r25:126.2,dec:176,mai:106,moy:132.5,cfg:159,wg:null},
+  {t:'ALLIANCES',s:'Immo.',r25:402,dec:640,mai:424,moy:424,cfg:null,wg:null},
+  {t:'COSUMAR',s:'Agro',r25:704,dec:1025,mai:685,moy:878,cfg:1071,wg:null},
+  {t:'RDS',s:'Immo.',r25:4,dec:160,mai:127,moy:127,cfg:null,wg:null},
+  {t:'AKDITAL',s:'Santé',r25:494,dec:677,mai:541,moy:628.7,cfg:786,wg:559},
+  {t:'TAQA',s:'Électricité',r25:981,dec:1165,mai:1037,moy:1037,cfg:null,wg:null},
+  {t:'AFRIQUIA GAZ',s:'Pétrole/Gaz',r25:750.5,dec:816,mai:731,moy:731,cfg:null,wg:null},
+  {t:'COLORADO',s:'BTP/Mat.',r25:65.5,dec:62,mai:57,moy:57,cfg:null,wg:null},
+  {t:'ATLANTASANAD',s:'Assurances',r25:467.6,dec:575,mai:538,moy:538,cfg:null,wg:null},
+  {t:'LABEL VIE',s:'Distribution',r25:578.8,dec:727,mai:721,moy:705.5,cfg:690,wg:null},
+  {t:'DHO',s:'Holding',r25:307,dec:345,mai:343,moy:343,cfg:null,wg:null},
+  {t:'DISWAY',s:'IT',r25:85.5,dec:100,mai:100,moy:105,cfg:110,wg:null},
+  {t:'MICRODATA',s:'IT',r25:69.5,dec:104,mai:104,moy:104,cfg:null,wg:null},
+  {t:'SBM',s:'Boissons',r25:343,dec:320,mai:320,moy:320,cfg:null,wg:null},
+  {t:'EQDOM',s:'Fin.',r25:95.5,dec:56,mai:56,moy:56,cfg:null,wg:null},
+  {t:'ARADEI',s:'REIT',r25:321.7,dec:345,mai:345,moy:344.5,cfg:344,wg:null},
+  {t:'SNEP',s:'Chimie',r25:-192.5,dec:80,mai:80,moy:80,cfg:null,wg:null},
+  {t:'SOTHEMA',s:'Pharma',r25:418,dec:420,mai:420,moy:420,cfg:null,wg:null},
+  {t:'IAM',s:'Télécoms',r25:5649,dec:5454,mai:5570,moy:6187,cfg:6804,wg:null},
+  {t:'ATW',s:'Banque',r25:10644,dec:11330,mai:11620,moy:11233,cfg:10846,wg:null},
+  {t:'LHM',s:'BTP/Mat.',r25:2166,dec:2153,mai:2213,moy:2213,cfg:null,wg:null},
+  {t:'JET',s:'BTP/Mat.',r25:225,dec:325,mai:335,moy:335,cfg:null,wg:null},
+  {t:'ADDOHA',s:'Immo.',r25:454,dec:328,mai:348,moy:455.5,cfg:null,wg:563},
+  {t:'BMCI',s:'Banque',r25:419.1,dec:459,mai:488,moy:488,cfg:null,wg:null},
+  {t:'CIMAR',s:'BTP/Mat.',r25:1402,dec:1209,mai:1305,moy:1305,cfg:null,wg:null},
+  {t:'BCP',s:'Banque',r25:4501.8,dec:4746,mai:5128,moy:5128,cfg:null,wg:null},
+  {t:'CDM',s:'Banque',r25:863.6,dec:876,mai:949,moy:943.5,cfg:938,wg:null},
+  {t:'CMGP',s:'Agro. ind.',r25:244,dec:237,mai:264,moy:255,cfg:246,wg:null},
+  {t:'AUTO HALL',s:'Distribution',r25:100,dec:112,mai:126,moy:138,cfg:null,wg:150},
+  {t:'WAA',s:'Assurances',r25:1026,dec:887,mai:999,moy:999,cfg:null,wg:null},
+  {t:'CIH',s:'Banque',r25:1089.4,dec:1064,mai:1221,moy:1210,cfg:1199,wg:null},
+  {t:'MARSA',s:'Transport',r25:1589,dec:1426,mai:1647,moy:1717.5,cfg:1788,wg:null},
+  {t:'SONASID',s:'BTP/Mat.',r25:272,dec:281,mai:335,moy:335,cfg:null,wg:null},
+  {t:'TGCC',s:'BTP/Mat.',r25:952,dec:868,mai:1047,moy:1053.3,cfg:1083,wg:1030},
+  {t:'TOTAL',s:'Pétrole/Gaz',r25:851,dec:789,mai:985,moy:985,cfg:null,wg:null},
+  {t:'HPS',s:'IT',r25:105.8,dec:99,mai:135,moy:142.5,cfg:150,wg:null},
+  {t:'SANLAM',s:'Assurances',r25:676.5,dec:471,mai:856,moy:856,cfg:null,wg:null},
+  {t:'CMT',s:'Mines',r25:196,dec:168,mai:347,moy:373.5,cfg:null,wg:400},
+  {t:'SMI',s:'Mines',r25:397,dec:197,mai:422,moy:611,cfg:null,wg:800},
+  {t:'MANAGEM',s:'Mines',r25:3002,dec:1843,mai:4942,moy:5471,cfg:null,wg:6000},
+];
+
+function pct(d){ return (d.mai - d.dec) / Math.abs(d.dec) * 100; }
+function fmtN(v){ return v === null ? '–' : Math.round(v).toLocaleString('fr-FR'); }
+function fmtPct(v){ return (v >= 0 ? '+' : '') + v.toFixed(1) + '%'; }
+
+function showTab(name) {
+  const names = ['revisions','hausses','baisses','secteur','marche'];
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', names[i] === name));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+function signalBadge(p) {
+  if (p >= 50) return '<span class="badge badge-strong">Révision majeure ↑</span>';
+  if (p >= 15) return '<span class="badge badge-up">Révision significative ↑</span>';
+  if (p > 0)   return '<span class="badge badge-up">Hausse modérée</span>';
+  if (p <= -20) return '<span class="badge badge-down">Déclassement fort ↓</span>';
+  return '<span class="badge badge-down">Révision baissière</span>';
+}
+
+const sorted = [...data].sort((a,b) => pct(b) - pct(a));
+const hausses = sorted.filter(d => pct(d) > 0);
+const baisses = [...data].filter(d => pct(d) < 0).sort((a,b) => pct(a) - pct(b));
+
+const hb = document.getElementById('haussesBody');
+hausses.forEach(d => {
+  const p = pct(d);
+  hb.innerHTML += `<tr>
+    <td style="font-weight:600">${d.t}</td>
+    <td><span class="badge badge-neutral">${d.s}</span></td>
+    <td style="text-align:right">${fmtN(d.r25)}</td>
+    <td style="text-align:right">${fmtN(d.dec)}</td>
+    <td style="text-align:right;font-weight:600">${fmtN(d.mai)}</td>
+    <td class="up">${fmtPct(p)}</td>
+    <td>${signalBadge(p)}</td>
+  </tr>`;
+});
+
+const bb = document.getElementById('baissesBody');
+baisses.forEach(d => {
+  const p = pct(d);
+  bb.innerHTML += `<tr>
+    <td style="font-weight:600">${d.t}</td>
+    <td><span class="badge badge-neutral">${d.s}</span></td>
+    <td style="text-align:right">${fmtN(d.r25)}</td>
+    <td style="text-align:right">${fmtN(d.dec)}</td>
+    <td style="text-align:right;font-weight:600">${fmtN(d.mai)}</td>
+    <td class="down">${fmtPct(p)}</td>
+    <td>${signalBadge(p)}</td>
+  </tr>`;
+});
+
+const marcheData = data
+  .filter(d => d.moy !== null)
+  .map(d => ({...d, upMoy: (d.moy - d.r25) / Math.abs(d.r25) * 100}))
+  .filter(d => d.upMoy > 10)
+  .sort((a,b) => b.upMoy - a.upMoy);
+
+const mb = document.getElementById('marcheBody');
+marcheData.forEach(d => {
+  const cls = d.upMoy >= 30 ? 'badge-strong' : d.upMoy >= 15 ? 'badge-up' : 'badge-neutral';
+  mb.innerHTML += `<tr>
+    <td style="font-weight:600">${d.t}</td>
+    <td><span class="badge badge-neutral">${d.s}</span></td>
+    <td style="text-align:right">${fmtN(d.r25)}</td>
+    <td style="text-align:right;font-weight:600">${fmtN(d.moy)}</td>
+    <td style="text-align:right">${fmtN(d.mai)}</td>
+    <td style="text-align:right">${fmtN(d.cfg)}</td>
+    <td style="text-align:right">${fmtN(d.wg)}</td>
+    <td><span class="badge ${cls}">${fmtPct(d.upMoy)}</span></td>
+  </tr>`;
+});
+
+const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+const textColor = isDark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.40)';
+const gridColor = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.05)';
+
+const wfSorted = [...data].sort((a,b) => pct(a) - pct(b));
+const wfLabels = wfSorted.map(d => d.t);
+const wfVals = wfSorted.map(d => +pct(d).toFixed(1));
+const wfColors = wfVals.map(v =>
+  v >= 50 ? '#185FA5' : v >= 15 ? '#378ADD' : v >= 0 ? '#85B7EB' : v >= -10 ? '#F09595' : '#E24B4A'
+);
+
+new Chart(document.getElementById('waterfallChart'), {
+  type: 'bar',
+  data: {
+    labels: wfLabels,
+    datasets: [{ label: 'Révision (%)', data: wfVals, backgroundColor: wfColors, borderRadius: 3 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => (ctx.parsed.y >= 0 ? '+' : '') + ctx.parsed.y.toFixed(1) + '%' } }
+    },
+    scales: {
+      x: { ticks: { color: textColor, font: { size: 10 }, maxRotation: 55 }, grid: { display: false } },
+      y: {
+        ticks: { color: textColor, font: { size: 11 }, callback: v => (v >= 0 ? '+' : '') + v + '%' },
+        grid: { color: gridColor },
+        title: { display: true, text: 'Révision BKGR (%)', color: textColor, font: { size: 11 } }
+      }
+    }
+  }
+});
+
+const sectorMap = {};
+data.forEach(d => {
+  const p = pct(d);
+  if (!sectorMap[d.s]) sectorMap[d.s] = { sum: 0, n: 0 };
+  sectorMap[d.s].sum += p; sectorMap[d.s].n++;
+});
+const sLabels = Object.keys(sectorMap).sort((a,b) =>
+  (sectorMap[b].sum / sectorMap[b].n) - (sectorMap[a].sum / sectorMap[a].n)
+);
+const sMoy = sLabels.map(s => +(sectorMap[s].sum / sectorMap[s].n).toFixed(1));
+
+new Chart(document.getElementById('sectorChart'), {
+  type: 'bar',
+  data: {
+    labels: sLabels,
+    datasets: [{
+      label: 'Révision moy. (%)', data: sMoy,
+      backgroundColor: sMoy.map(v => v >= 20 ? '#185FA5' : v >= 5 ? '#85B7EB' : v >= -5 ? '#B4B2A9' : '#E24B4A'),
+      borderRadius: 3
+    }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => (ctx.parsed.x >= 0 ? '+' : '') + ctx.parsed.x.toFixed(1) + '%' } }
+    },
+    scales: {
+      x: { ticks: { color: textColor, font: { size: 11 }, callback: v => (v >= 0 ? '+' : '') + v + '%' }, grid: { color: gridColor } },
+      y: { ticks: { color: textColor, font: { size: 11 } }, grid: { display: false } }
+    }
+  }
+});
+</script>
+</body>
+</html>
